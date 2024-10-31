@@ -2,7 +2,7 @@ package mission;
 
 import java.util.Scanner;
 
-public class mission3 {
+public class Mission3 {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);

@@ -1,6 +1,6 @@
 package mission;
 
-public class mission1 {
+public class Mission1 {
 
     public static void main(String[] args) {
         System.out.println("안녕하세요!");
