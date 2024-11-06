@@ -45,6 +45,8 @@ public class Mission7 {
         }
     }
 
+    static List<Book> bookList = new ArrayList<>(); //클래스 자체의 리스트는 클래스 외부에서 관리하자
+
     private static void bookManagerSystem() throws IOException {
         boolean bookManagerRunning = true;
 
@@ -57,26 +59,15 @@ public class Mission7 {
             switch (userAnswerNumber) {
                 case 1:
                     //도서 추가
-                    System.out.print("도서 제목 입력: ");
-                    String title = br.readLine();
-
-                    System.out.print("도서 저자 입력: ");
-                    String author = br.readLine();
-
-                    Book newBook = new Book(title, author);
-
+                    addBook();
                     break;
                 case 2:
                     //도서 조회
-                    System.out.println("--현재 도서 리스트--");
-                    Book.showBookList();
+                    showBookList();
                     break;
                 case 3:
                     //도서 삭제
-                    System.out.print("삭제할 도서의 제목 입력: ");
-                    String removeBookTitle = br.readLine();
-                    Book.removeBookList(removeBookTitle);
-
+                    removeBook();
                     break;
                 case 4:
                     System.out.print("종료하시겠습니까?(Y/n)");
@@ -92,6 +83,51 @@ public class Mission7 {
             }
             System.out.println();
         }
+    }
+
+    //도서 추가 기능 메서드 추출
+    private static void addBook() throws IOException {
+        System.out.print("도서 제목 입력: ");
+        String title = br.readLine();
+
+        System.out.print("도서 저자 입력: ");
+        String author = br.readLine();
+
+        Book newBook = new Book(title, author);
+        bookList.add(newBook);
+
+        System.out.println(newBook.getTitle() + ", " + newBook.getAuthor() + " 저 도서 저장");
+    }
+
+    //도서 조회 기능 메서드 추출
+    //성빈님이 말씀하신 클래스 내부에서 bookList를 안써서 리스트를 조회하는 정보표현을 다르게 할 수 있다는 말은 어떤 뜻인지?
+    private static void showBookList() {
+        if (bookList.isEmpty()) {
+            System.out.println("등록된 도서가 없습니다.");
+            return;
+        }
+
+        for (Book book : bookList) {
+            System.out.println(book.getTitle() + ", " + book.getAuthor() + " 저");
+        }
+    }
+
+    //도서 삭제 기능 메서드 추출
+    private static void removeBook() throws IOException {
+        System.out.print("삭제할 도서 제목 입력: ");
+        String title = br.readLine();
+
+        boolean cannotFindBookWithTitle = bookList.stream()
+                .noneMatch(book -> book.getTitle().equals(title));
+
+        if(cannotFindBookWithTitle) {
+            System.out.println("해당 제목의 도서는 존재하지 않습니다.");
+            return;
+        }
+
+        bookList.removeIf(book -> book.getTitle().equals(title));
+        System.out.println("삭제 후 리스트");
+        showBookList();
     }
 
     private static void quiz() throws IOException {
@@ -118,14 +154,21 @@ public class Mission7 {
         System.out.println("점수는 " + score + "/" + problemList.size());
     }
 
+    // 객체를 매번 생성하지 않고 변수를 사용하자
     private static List<String[]> getProblems() {
         List<String[]> problemList = new ArrayList<>();
 
-        problemList.add(new String[]{"JVM의 런타임 데이터 영역에서 메서드 정보, 지역변수, 매개변수가 저장되는 영역은? (OO영역)", "스택"});
-        problemList.add(new String[]{"상수 선언을 하는 자바의 예약어는?", "final"});
-        problemList.add(new String[]{"한 조건에서 두 개 이상의 논리 조건을 사용할 때\n 첫번째 조건만으로 확정되면 두번째 조건은 판단하지 않는 것은? (OO OO OO)", "회로 단락 평가"});
-        problemList.add(new String[]{"double ans = 3 / 2;에서 ans의 값은?", "1.0"});
-        problemList.add(new String[]{"큰 타입에서 작은 타입으로 형변환을 하려면 OOO형변환이 필요하다", "명시적"});
+        String[] problem1 = {"JVM의 런타임 데이터 영역에서 메서드 정보, 지역변수, 매개변수가 저장되는 영역은? (OO영역)", "스택"};
+        String[] problem2 = {"상수 선언을 하는 자바의 예약어는?", "final"};
+        String[] problem3 = {"한 조건에서 두 개 이상의 논리 조건을 사용할 때\n 첫번째 조건만으로 확정되면 두번째 조건은 판단하지 않는 것은? (OO OO OO)", "회로 단락 평가"};
+        String[] problem4 = {"double ans = 3 / 2;에서 ans의 값은?", "1.0"};
+        String[] problem5 = {"큰 타입에서 작은 타입으로 형변환을 하려면 OOO형변환이 필요하다", "명시적"};
+
+        problemList.add(problem1);
+        problemList.add(problem2);
+        problemList.add(problem3);
+        problemList.add(problem4);
+        problemList.add(problem5);
 
         return problemList;
     }
@@ -170,36 +213,10 @@ public class Mission7 {
 class Book {
     private String title;
     private String author;
-    private static List<Book> bookList = new ArrayList<>();
 
     public Book(String title, String author) {
         this.title = title;
         this.author = author;
-        addBookList(this); //Book 생성 시 자동 리스트에 추가
-    }
-
-    public void addBookList(Book book) {
-        bookList.add(book);
-        System.out.println(book.getTitle() + ", " + book.getAuthor() + " 저 도서 저장");
-    }
-
-    public static void removeBookList(String title) {
-        boolean cannotFindBookWithTitle = bookList.stream()
-                .noneMatch(book -> book.getTitle().equals(title));
-
-        if(cannotFindBookWithTitle){
-            System.out.println("해당 제목의 도서는 존재하지 않습니다.");
-            return;
-        }
-        bookList.removeIf(book -> book.getTitle().equals(title));
-        System.out.println("삭제 후 리스트");
-        showBookList();
-    }
-
-    public static void showBookList() {
-        for (Book book : bookList) {
-            System.out.println(book.getTitle() + ", " + book.getAuthor() + " 저");
-        }
     }
 
     public String getTitle() {
